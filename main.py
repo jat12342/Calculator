@@ -1,70 +1,53 @@
 from kivymd.app import MDApp
 from kivy.uix.screenmanager import Screen,ScreenManager
 from kivy.lang import Builder
-from kivy.properties import ObjectProperty
-from kivy.uix.floatlayout import FloatLayout
-from kivymd.uix.toolbar import MDTopAppBar
+from kivymd.toast.kivytoast.kivytoast import toast
+import webbrowser
 
-Kv='''
+kv='''
 
-float:
-    man:man
-    
-    ScreenManager:
-        id:man
-        home:home
-        
-        Screen:
-            id:home
-            name:'home'
-            
-                
-            MDTopAppBar:
-                title:'HAR HAR MAHADEV'
-                left_action_items:[['menu',lambda x: n1.set_state("open")]]
-                pos_hint:{'top':1}
+Manager:
+    Fir:
+    Sec:
+               
+<Fir>:
+    MDBottomNavigation:
+        panel_color:0,1,0,1
+        text_color_active:1,0,0,1
+        text_color_normal:0,0,1,1
+        MDBottomNavigationItem:
+            name:'s1'
+            icon:'home'
+            text:'HOME'
+            Carousel:
+                direction:'bottom'
+                MDLabel:
+                    text:'HAR HAR MAHADEV'
+                    bold:True
+                    halign:'center'
+                    font_size:'50sp'
+        MDBottomNavigationItem:
+            name:'s2'   
+            icon:'android'              
+            text:'THEME CHANGER'         
+            MDFloatingActionButton:
+                icon:'android'             
+                pos_hint:{'center_x':0.5,'center_y':0.6}
+                size_hint:1,0.2
+                on_press:
+                    app.th()                      
+                                                     
+                    
+                    
+                    
+                    
 
-            MDLabel:
-                id:l1
-                text:'HAR HAR MAHADEV'       
-                font_style:'H4'   
-                bold:True
-                font_size:'20sp'
-                pos_hint:{'center_x':0.7,'center_y':0.7}
-                
-                
-                                                                      
-                                                
-                
-            MDNavigationDrawer:
-                id:n1
-                MDBoxLayout:
-                    orientation:'vertical'
-                    MDLabel:
-                        id:l2
-                        text:'RAM-RAM'
-                        font_style:'H4'
-                        bold:True
-                        size_hint:0.3,0.3
-                        font_size:'10sp'
-                    MDLabel:
-                        id:l3
-                        text:'UNDER DEVELOPMENT'
-                        font_style:'H4'
-                        font_size:'10sp'
-                        bold:True
-                        size_hint:0.3,0.3                                                                    
-                
-                
-
-            
-                 
-     
-
-
-
-
-
+    MDTopAppBar:
+        id:m1
+        title:'HAR HAR MAHADEV'
+        pos_hint:{"top":1}
+        md_bg_color:0,1,0,1
+        left_action_items:[['youtube',lambda x: app.pr()]]
 
 
 
@@ -80,23 +63,36 @@ float:
 
 
 
-class float(FloatLayout):
+
+
+
+
+
+class Fir(Screen):
+    pass
+    
+    
+class Sec(Screen):
+    pass
+    
+    
+class Manager(ScreenManager):
     pass
 
 
 class Demo(MDApp):
     def build(self):
-        b=Builder.load_string(Kv)
-        return b
+        self.u=Builder.load_string(kv)
+        return self.u
+    def pr(self):
+        webbrowser.open('https://youtube.com/shorts/kKQv_wpl4vM?si=stHFkYJBjMfDI4pd')        
+    def th(self):
+        self.theme_cls.theme_style = "Dark"
+        self.theme_cls.primary_palette = "Blue"                 
+                       
         
-                
-                        
-Demo().run()                                       
-      
-    
+        
+        
 
-
-
-
-
-
+Demo().run()
+        
