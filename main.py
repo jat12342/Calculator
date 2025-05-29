@@ -1,57 +1,62 @@
 from kivymd.app import MDApp
-from kivy.uix.screenmanager import Screen,ScreenManager
 from kivy.lang import Builder
+from kivy.uix.screenmanager import Screen,ScreenManager
 from kivymd.toast.kivytoast.kivytoast import toast
+import requests
 import webbrowser
-
+from kivymd.uix.label import MDLabel
+from kivymd.uix.card import MDCard
+from kivy.core.audio import SoundLoader
+from kivy.uix.image import Image,AsyncImage
+from kivy.uix.videoplayer import VideoPlayer
+from kivymd.uix.button import MDRectangleFlatButton, MDFlatButton, MDRaisedButton, MDFillRoundFlatButton, MDFillRoundFlatIconButton, MDRoundFlatIconButton, MDRoundFlatButton, MDFloatingActionButton, MDIconButton
+import requests
+import time
+import mimetypes
+import random
 kv='''
-
 Manager:
     Fir:
-    Sec:
-               
+    Sec:        
 <Fir>:
-    MDBottomNavigation:
-        panel_color:0,1,0,1
-        text_color_active:1,0,0,1
-        text_color_normal:0,0,1,1
-        MDBottomNavigationItem:
-            name:'s1'
-            icon:'home'
-            text:'HOME'
-            Carousel:
-                direction:'bottom'
-                MDLabel:
-                    text:'HAR HAR MAHADEV'
-                    bold:True
-                    halign:'center'
-                    font_size:'50sp'
-        MDBottomNavigationItem:
-            name:'s2'   
-            icon:'android'              
-            text:'THEME CHANGER'         
-            MDFloatingActionButton:
-                icon:'android'             
-                pos_hint:{'center_x':0.5,'center_y':0.6}
-                size_hint:1,0.2
-                on_press:
-                    app.th()                      
-                                                     
-                    
-                    
-                    
-                    
+    id:s1
+    name:'home'
+    
+    MDCarousel:
+        id:mc1
+        direction:'bottom'
+        pos_hint:{'center_x':0.5,'center_y':0.6} 
+        size_hint:1,0.5
+      
+            
+   
+    MDIconButton:
+        icon:'refresh'
+        pos_hint:{'center_x':0.5,'center_y':0.2}
+        size_hint:1,0.1
+        md_bg_color:0,0,1,1
+        on_press:app.cl()        
+        
+
+
+
+
+    
+
+
+
+
 
     MDTopAppBar:
-        id:m1
-        title:'HAR HAR MAHADEV'
-        pos_hint:{"top":1}
-        md_bg_color:0,1,0,1
-        left_action_items:[['youtube',lambda x: app.pr()]]
+        id:tb1
+        pos_hint:{'top':1}
+        title:'IMAGE DOWNLOADER'
+        left_action_items:[['menu',lambda x:nd1.set_state('open')]]
+        md_bg_color:0,0,1,1
 
-
-
-
+    MDNavigationDrawer:
+        id:nd1
+     
 
 
 
@@ -68,31 +73,150 @@ Manager:
 
 
 
-class Fir(Screen):
-    pass
-    
-    
-class Sec(Screen):
-    pass
-    
-    
+
+
+
+
+
 class Manager(ScreenManager):
     pass
+
+class Fir(Screen):
+    pass
+
+class Sec(Screen):
+    pass
+
+
+
+
 
 
 class Demo(MDApp):
     def build(self):
-        self.u=Builder.load_string(kv)
-        return self.u
-    def pr(self):
-        webbrowser.open('https://youtube.com/shorts/kKQv_wpl4vM?si=stHFkYJBjMfDI4pd')        
-    def th(self):
-        self.theme_cls.theme_style = "Dark"
-        self.theme_cls.primary_palette = "Blue"                 
-                       
+        self.b=Builder.load_string(kv)   
+        return self.b
         
+    def on_start(self):
+        try:               
+            self.urls ='https://api.unsplash.com/photos/random?query=mountain&client_id=TRIHpYC1opzKSS-FVooWkd55u6iExKUinZlIDmwwlnQ'  
+            for i in range(0,5):                
+                r1 = requests.get(self.urls).json()
+                r2 = r1['urls']['regular']
+                
+                
+                u=self.b.get_screen('home').ids.mc1 
+                u2 =MDCard(on_press=lambda x,imgu=r2:self.dow(imgu))    
+                
+                as1=AsyncImage(source=r2,size_hint=(1,1),allow_stretch=True,keep_ratio=False)
+               
+                
+                u.add_widget(u2)   
+                u2.add_widget(as1)     
+                                
+                    
+        except requests.exceptions.ConnectionError:
+            self.b.get_screen('home').ids.mc1.add_widget(MDCard(MDLabel(text='NO INTERNET CONNECTION',font_style='H6')))            
+            toast("No internet connection")
+            
+        except requests.exceptions.Timeout:
+            toast("Request timed out")
+        except requests.exceptions.HTTPError as e:
+            toast(f"HTTP error: {e}")
+        except FileNotFoundError:
+            toast("Save location not found")
+        except PermissionError:
+            toast("Permission denied while saving")                            
+                                          
+                                        
+        except Exception as e:
+            toast(f'{e}')  
+            
+            for i in range(0,51):
+                rr1=random.randint(1,10000)
+                rr2 = f"https://picsum.photos/seed/{rr1}/600/400"
+                rr=self.b.get_screen('home').ids.mc1
+                rr3 =MDCard(on_press=lambda x,imgu=rr2:self.dow(imgu))
+                rr4 =AsyncImage(source=rr2,size_hint=(1,1),allow_stretch=True,keep_ratio=False)
+                
+                rr.add_widget(rr3)
+                rr3.add_widget(rr4)
+                
+                
+            
         
+    def dow(self,link):
+        try:
+            r1 = requests.get(link)   
+            folder = "/storage/emulated/0/Download/MyImages"
+            ext = mimetypes.guess_extension(r1.headers.get('content-type', 'image/png'))
+            lk=f'dow_{int(time.time())}{ext or ".png"}'
+            
+            if r1.status_code == 200:
+                with open(lk,'wb') as f:
+                    f.write(r1.content)
+                toast('Downloaded')           
+                         
+            else:
+                print('Error')                           
+                                              
+                
+        except Exception as e:
+            toast(f'{e}')               
         
+    def thank(self):
+        toast('RADHE-RADHE')    
+        
+            
+    def cl(self):
+        c1=self.b.get_screen('home').ids.mc1
+        c1.clear_widgets() 
+        try:               
+            self.urls ='https://api.unsplash.com/photos/random?query=mountain&client_id=XQN5NtHS9OFD2Kv_AVM583EtWrS1UKdf4wns5PekfJg'
+            for i in range(0,5):                
+                r1 = requests.get(self.urls).json()
+                r2 = r1['urls']['regular']
+                
+                
+                u=self.b.get_screen('home').ids.mc1 
+                u2 =MDCard(on_press=lambda x,imgu=r2:self.dow(imgu))    
+                as1=AsyncImage(source=r2,size_hint=(1,1),allow_stretch=True,keep_ratio=False)
+               
+                
+                u.add_widget(u2)   
+                u2.add_widget(as1)
+            toast('REFRESHED')   
 
-Demo().run()
+        except requests.exceptions.ConnectionError:
+            self.b.get_screen('home').ids.mc1.add_widget(MDCard(MDLabel(text='NO INTERNET CONNECTION',font_style='H6',text_color=(1,0,0,1))))
+            
+            toast("No internet connection")
+            
+        except requests.exceptions.Timeout:
+            toast("Request timed out")
+        except requests.exceptions.HTTPError as e:
+            toast(f"HTTP error: {e}")
+        except FileNotFoundError:
+            toast("Save location not found")
+        except PermissionError:
+            toast("Permission denied while saving")           
+                
+                        
+                                
+                                                
+                  
+        except Exception as e:      
+            for i in range(0,51):
+                rr1=random.randint(1,100000000000)
+                rr2 = f"https://picsum.photos/seed/{rr1}/600/400"
+                rr=self.b.get_screen('home').ids.mc1
+                rr3 =MDCard(on_press=lambda x,imgu=rr2:self.dow(imgu))
+                rr4 =AsyncImage(source=rr2,size_hint=(1,1),allow_stretch=True,keep_ratio=False)
+                
+                rr.add_widget(rr3)
+                rr3.add_widget(rr4)      
+            toast('REFRESH 2')                           
         
+                        
+        
+Demo().run()      
