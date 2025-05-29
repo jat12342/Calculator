@@ -6,15 +6,34 @@ jobs:
   build:
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v4             # updated from v2 to v3
+      - uses: actions/checkout@v4
+
+      - name: Install Java and Android SDK build-tools (for AIDL)
+        run: |
+          sudo apt update
+          sudo apt install -y openjdk-17-jdk wget unzip
+
+          mkdir -p $HOME/android-sdk/cmdline-tools
+          cd $HOME/android-sdk/cmdline-tools
+          wget https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O tools.zip
+          unzip tools.zip
+          rm tools.zip
+          mv cmdline-tools latest
+
+          export ANDROID_SDK_ROOT=$HOME/android-sdk
+          export PATH=$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$PATH
+
+          yes | sdkmanager --licenses
+          sdkmanager "platform-tools" "platforms;android-33" "build-tools;36.0.0"
+
       - name: Build APK
-        uses: digreatbrian/buildozer-action@v2 # latest stable version as per repo (v1 se v2 hai)
+        uses: digreatbrian/buildozer-action@v2
         with:
           buildozer-cmd: buildozer -v android debug
-          work-dir: . # directory where your main.py file rests
+          work-dir: .
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v4       # updated from v2 to v3
+        uses: actions/upload-artifact@v4
         with:
           name: package
           path: ./bin/*.apk
