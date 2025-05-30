@@ -2,83 +2,24 @@ name: Build Kivy APK
 
 on:
   push:
-    branches:
-      - main
-  workflow_dispatch:
+    branches: [main]
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.12'
+      - name: Build APK with Buildozer
+        uses: digreatbrian/buildozer-action@v2
+        with:
+          buildozer-cmd: buildozer -v android debug
+          work-dir: .  # Directory containing main.py and buildozer.spec
 
-    - name: Install system dependencies
-      run: |
-        sudo apt update
-        sudo apt install -y \
-          python3-pip \
-          zip unzip \
-          openjdk-17-jdk \
-          git \
-          build-essential \
-          libffi-dev \
-          libssl-dev \
-          libsqlite3-dev \
-          libpng-dev \
-          libjpeg-dev \
-          libfreetype6-dev \
-          libgl1-mesa-dev \
-          libgles2-mesa-dev \
-          libmtdev-dev \
-          libgtk-3-dev \
-          libsdl2-dev \
-          libsdl2-image-dev \
-          libsdl2-mixer-dev \
-          libsdl2-ttf-dev \
-          libportmidi-dev \
-          libswscale-dev \
-          libavformat-dev \
-          libavcodec-dev \
-          libgstreamer1.0-dev \
-          gstreamer1.0-plugins-base \
-          gstreamer1.0-plugins-good \
-          autoconf \
-          automake \
-          libtool \
-          pkg-config \
-          ccache \
-          zlib1g-dev \
-          libbz2-dev \
-          python3-setuptools \
-          python3-wheel \
-          python3-jinja2 \
-          python3-openssl
-
-    - name: Upgrade pip and install Python dependencies
-      run: |
-        python3 -m pip install --upgrade pip
-        pip install --upgrade \
-          cython \
-          buildozer \
-          virtualenv \
-          six \
-          setuptools \
-          wheel
-
-    - name: Initialize and build with Buildozer
-      run: |
-        buildozer android clean
-        buildozer android debug
-
-    - name: Upload APK
-      uses: actions/upload-artifact@v4
-      with:
-        name: kivy-apk
-        path: bin/*.apk
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: kivy-apk
+          path: ./bin/*.apk
